@@ -1,0 +1,4 @@
+dist
+.helm
+src/metadata.ts
+db/migrations

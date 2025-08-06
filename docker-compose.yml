@@ -1,0 +1,75 @@
+services:
+  zebra-api:
+    container_name: zebra-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      DB_URL: postgres-zebra-db
+      DB_PORT: 5432
+      DB_NAME: zebra
+      DB_USERNAME: zebra
+      DB_PASSWORD: zebra
+      REDIS_ENABLED: true
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_TOKEN_SECRET: your_jwt_secret_key
+    depends_on:
+      - postgres-zebra-db
+      - redis
+    networks:
+      - zebra-network
+
+  postgres-zebra-db:
+    container_name: postgres-zebra-db
+    image: postgres:16
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: zebra
+      POSTGRES_PASSWORD: zebra
+      POSTGRES_DB: zebra
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - zebra-network
+
+  pgadmin-zebra:
+    container_name: pgadmin-zebra
+    image: dpage/pgadmin4:latest
+    restart: always
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: zebra@zebra.com
+      PGADMIN_DEFAULT_PASSWORD: zebra
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - zebra-network
+    depends_on:
+      - postgres-zebra-db
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis:/data
+    networks:
+      - zebra-network
+
+networks:
+  zebra-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+  redis:
