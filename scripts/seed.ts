@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 
+import { UserRole } from '@common/enum';
+
 import { AppModule } from '../src/app.module';
 import { Feature } from '../src/modules/feature/entity';
 import { FeatureFlag } from '../src/modules/feature-flag/entity';
@@ -11,18 +13,42 @@ import { Tenant } from '../src/modules/tenant/entity';
 import { User } from '../src/modules/user/entity';
 
 async function createUsers(dataSource: DataSource): Promise<void> {
+  const tenantRepo = dataSource.getRepository(Tenant);
+  const tenant1 = await tenantRepo.findOneByOrFail({ name: 'zebra' });
+  const tenant2 = await tenantRepo.findOneByOrFail({ name: 'globex' });
+
   const userData = [
-    { username: 'zebra_admin', password: 'admin123' },
-    { username: 'acme_user', password: 'user123' },
-    { username: 'globex_manager', password: 'manager123' },
+    {
+      username: 'admin',
+      password: 'admin123',
+      role: UserRole.ADMIN,
+      tenant: null,
+    },
+    {
+      username: 'zebra',
+      password: 'zebra123',
+      role: UserRole.TENANT,
+      tenant: tenant1,
+    },
+    {
+      username: 'globex',
+      password: 'globex123',
+      role: UserRole.TENANT,
+      tenant: tenant2,
+    },
   ];
 
-  const users = userData.map(data =>
-    dataSource.manager.create(User, {
-      username: data.username,
-      password: bcrypt.hashSync(data.password, 10),
-    }),
+  const users = await Promise.all(
+    userData.map(async data =>
+      dataSource.manager.create(User, {
+        username: data.username,
+        password: await bcrypt.hash(data.password, 10),
+        role: data.role,
+        tenant: data.tenant,
+      }),
+    ),
   );
+
   await dataSource.manager.save(users);
 }
 
