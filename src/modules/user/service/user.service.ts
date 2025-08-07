@@ -1,7 +1,7 @@
-import { CreateUserDto } from '../dto';
-import { User } from '../entity/user.entity';
+import { CreateUserDto, UserResponseDto } from '@modules/user/dto';
 
 export interface UserService {
-  create(data: CreateUserDto): Promise<User>;
-  findByUsername(username: string): Promise<User | null>;
+  create(data: CreateUserDto): Promise<UserResponseDto>;
+  findByUsername(username: string): Promise<UserResponseDto>;
+  validateUserCredentials(username: string, password: string): Promise<UserResponseDto>;
 }
