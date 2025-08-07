@@ -16,7 +16,7 @@ export class Pageable {
   @Max(1000)
   size?: number;
 
-  @ApiPropertyOptional({ description: 'Sort by field and direction, e.g. name,asc', example: 'name,desc' })
+  @ApiPropertyOptional({ description: 'Sort by field and direction, e.g. name,asc' })
   @IsOptional()
   @IsString()
   sort?: string;
