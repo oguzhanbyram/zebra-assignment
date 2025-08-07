@@ -1,17 +1,14 @@
-import { Body, Controller, Delete, Get, Inject, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Inject, Post, Put, Query } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { PaginatedResponse, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
 
-import { AuthGuard } from '@modules/auth';
 import { TenantResponseDto, TenantFilterDto, CreateTenantDto, UpdateTenantDto } from '@modules/tenant/dto';
 import { TenantService } from '@modules/tenant/service';
 import { TENANT_SERVICE } from '@modules/tenant/tenant.constants';
 
 @ApiTags('tenant-controller')
-@ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller()
 export class TenantController {
   constructor(

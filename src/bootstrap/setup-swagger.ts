@@ -7,7 +7,6 @@ export function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Feature Toggle Service API')
     .setDescription('Zebra Engineering Assignment – API documentation')
-    .addBearerAuth()
     .setVersion('1.0')
     .build();
 

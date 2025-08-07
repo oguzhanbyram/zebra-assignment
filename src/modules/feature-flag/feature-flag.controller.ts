@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, Inject, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { PaginatedResponse, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
 
-import { AuthGuard } from '@modules/auth';
 import {
   FeatureFlagResponseDto,
   FeatureFlagFilterDto,
@@ -15,8 +14,6 @@ import { FEATURE_FLAG_SERVICE } from '@modules/feature-flag/feature-flag.constan
 import { FeatureFlagService } from '@modules/feature-flag/service';
 
 @ApiTags('feature-flag-controller')
-@ApiBearerAuth()
-@UseGuards(AuthGuard)
 @Controller()
 export class FeatureFlagController {
   constructor(
