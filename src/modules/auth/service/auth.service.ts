@@ -1,5 +1,5 @@
-import { LoginDto, LoginResponseDto } from '../dto';
+import { LoginDto, LoginResponseDto } from '@modules/auth';
 
 export interface AuthService {
-  login(data: LoginDto): Promise<LoginResponseDto>;
+  login(dto: LoginDto): Promise<LoginResponseDto>;
 }
