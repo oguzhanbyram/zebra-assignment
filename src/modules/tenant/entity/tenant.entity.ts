@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, Relation } from 'typeorm';
 
-import { PLAN_TYPES, PlanType } from '@common/constants';
+import { PlanType } from '@common/enums';
 
 import { BaseEntity } from '@shared/entity';
 
@@ -14,11 +14,7 @@ export class Tenant extends BaseEntity {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({
-    type: 'enum',
-    enum: PLAN_TYPES,
-    default: 'free',
-  })
+  @Column({ type: 'enum', enum: PlanType, default: PlanType.FREE })
   plan: PlanType;
 
   @Column('varchar', { name: 'api_key', nullable: true, unique: true })
