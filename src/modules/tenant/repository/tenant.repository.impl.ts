@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { BaseRepositoryImpl } from '@shared/repository';
 
 import { Tenant } from '@modules/tenant/entity';
-import { TenantRepository } from '@modules/tenant/repository/tenant.repository';
+import { TenantRepository } from '@modules/tenant/repository';
 
 @Injectable()
 export class TenantRepositoryImpl extends BaseRepositoryImpl<Tenant> implements TenantRepository {

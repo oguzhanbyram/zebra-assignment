@@ -5,7 +5,7 @@ import { Page, Pageable } from '@common/dto';
 import { CreateTenantDto, TenantFilterDto, UpdateTenantDto } from '@modules/tenant/dto';
 import { Tenant } from '@modules/tenant/entity';
 import { TenantRepository } from '@modules/tenant/repository';
-import { TenantService } from '@modules/tenant/service/tenant.service';
+import { TenantService } from '@modules/tenant/service';
 import { TENANT_REPOSITORY } from '@modules/tenant/tenant.constants';
 
 @Injectable()
