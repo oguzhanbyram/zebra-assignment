@@ -1,18 +1,16 @@
+import { PlanType } from '@common/enums';
+
 export const PLAN_LIMITS: Record<PlanType, { burst: number; sustained: number }> = {
-  free: {
+  [PlanType.FREE]: {
     burst: 20,
     sustained: 100,
   },
-  basic: {
+  [PlanType.BASIC]: {
     burst: 100,
     sustained: 1000,
   },
-  pro: {
+  [PlanType.PRO]: {
     burst: 300,
     sustained: 3000,
   },
 };
-
-export const PLAN_TYPES = ['free', 'basic', 'pro'] as const;
-
-export type PlanType = (typeof PLAN_TYPES)[number];
