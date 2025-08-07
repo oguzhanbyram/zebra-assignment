@@ -1,4 +1,4 @@
-import { PlanType } from '@common/enums';
+import { PlanType } from '@common/enum';
 
 export const PLAN_LIMITS: Record<PlanType, { burst: number; sustained: number }> = {
   [PlanType.FREE]: {

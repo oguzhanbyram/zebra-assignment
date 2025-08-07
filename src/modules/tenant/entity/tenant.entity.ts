@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, Relation } from 'typeorm';
 
-import { PlanType } from '@common/enums';
+import { PlanType } from '@common/enum';
 
 import { BaseEntity } from '@shared/entity';
 
