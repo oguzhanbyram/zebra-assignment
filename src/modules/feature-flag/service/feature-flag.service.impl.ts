@@ -1,18 +1,15 @@
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { Page, Pageable } from '@common/dto';
 
-import { FEATURE_SERVICE } from '@modules/feature/feature.constants';
-import { FeatureService } from '@modules/feature/service';
+import { FEATURE_SERVICE, FeatureService } from '@modules/feature';
+import { FEATURE_FLAG_REPOSITORY } from '@modules/feature-flag';
 import { UpsertFeatureFlagDto, FeatureFlagFilterDto, EvaluateFeatureFlagDto } from '@modules/feature-flag/dto';
 import { FeatureFlag } from '@modules/feature-flag/entity';
-import { FEATURE_FLAG_REPOSITORY } from '@modules/feature-flag/feature-flag.constants';
+import { StrategyType } from '@modules/feature-flag/enum';
 import { FeatureFlagRepository } from '@modules/feature-flag/repository';
+import { FeatureFlagService } from '@modules/feature-flag/service';
 import { TENANT_SERVICE, TenantService } from '@modules/tenant';
-
-import { FeatureFlagService } from './feature-flag.service';
-import { StrategyType } from '../enum';
 
 @Injectable()
 export class FeatureFlagServiceImpl implements FeatureFlagService {
@@ -23,7 +20,6 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     private readonly tenantService: TenantService,
     @Inject(FEATURE_SERVICE)
     private readonly featureService: FeatureService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   findAll(pageable: Pageable, filter: FeatureFlagFilterDto): Promise<Page<FeatureFlag>> {
@@ -54,15 +50,10 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
   async evaluate(dto: EvaluateFeatureFlagDto): Promise<boolean> {
     const { tenant, feature, environment, userId } = dto;
 
-    const cacheKey = `flag_eval:${tenant}:${feature}:${environment}:${userId}`;
-    const cachedResult = await this.cacheManager.get<boolean>(cacheKey);
-    if (cachedResult !== undefined) return cachedResult;
-
     const tenantEntity = await this.tenantService.findByName(tenant);
     const featureEntity = await this.featureService.findByName(feature);
 
     if (!tenantEntity || !featureEntity) {
-      await this.cacheManager.set(cacheKey, false, 60000);
       return false;
     }
 
@@ -73,7 +64,6 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     );
 
     if (!flag || !flag.enabled) {
-      await this.cacheManager.set(cacheKey, false, 60000);
       return false;
     }
 
@@ -91,7 +81,6 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
         break;
     }
 
-    await this.cacheManager.set(cacheKey, result, 60000);
     return result;
   }
 
