@@ -1,0 +1,62 @@
+[
+  {
+    "name": "google",
+    "description": "Google LLC - Global technology leader",
+    "plan": "pro",
+    "apiKey": null
+  },
+  {
+    "name": "microsoft",
+    "description": "Microsoft Corporation - Cloud and software services",
+    "plan": "pro",
+    "apiKey": null
+  },
+  {
+    "name": "amazon",
+    "description": "Amazon Inc. - E-commerce and cloud services",
+    "plan": "pro",
+    "apiKey": null
+  },
+  {
+    "name": "netflix",
+    "description": "Netflix Inc. - Streaming entertainment service",
+    "plan": "basic",
+    "apiKey": null
+  },
+  {
+    "name": "spotify",
+    "description": "Spotify AB - Music streaming platform",
+    "plan": "basic",
+    "apiKey": null
+  },
+  {
+    "name": "dropbox",
+    "description": "Dropbox Inc. - Cloud storage and collaboration",
+    "plan": "basic",
+    "apiKey": null
+  },
+  {
+    "name": "zoom",
+    "description": "Zoom Video Communications - Video conferencing platform",
+    "plan": "free",
+    "apiKey": null
+  },
+  {
+    "name": "airbnb",
+    "description": "Airbnb Inc. - Online marketplace for lodging",
+    "plan": "free",
+    "apiKey": null
+  },
+  {
+    "name": "slack",
+    "description": "Slack Technologies - Team communication and collaboration",
+    "plan": "free",
+    "apiKey": null
+  },
+  {
+    "name": "github",
+    "description": "GitHub Inc. - Code hosting and version control",
+    "plan": "basic",
+    "apiKey": null
+  }
+]

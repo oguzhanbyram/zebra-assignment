@@ -1,0 +1,52 @@
+[
+  {
+    "key": "new-dashboard",
+    "name": "Yeni Dashboard",
+    "description": "Yenilenmiş kullanıcı arayüzünü aktif eder."
+  },
+  {
+    "key": "dark-mode",
+    "name": "Karanlık Mod",
+    "description": "Arayüzü karanlık modda kullanmanıza olanak tanır."
+  },
+  {
+    "key": "beta-feature",
+    "name": "Beta Özelliği",
+    "description": "Test aşamasındaki yeni modülü aktif eder."
+  },
+  {
+    "key": "ai-search",
+    "name": "Yapay Zeka Arama",
+    "description": "Yapay zeka destekli gelişmiş arama özelliğini etkinleştirir."
+  },
+  {
+    "key": "referral-system",
+    "name": "Referans Sistemi",
+    "description": "Kullanıcı yönlendirme ve ödül sistemini açar."
+  },
+  {
+    "key": "multi-language",
+    "name": "Çoklu Dil Desteği",
+    "description": "Uygulamanın çoklu dil desteğini aktif eder."
+  },
+  {
+    "key": "analytics",
+    "name": "Gelişmiş Analitik",
+    "description": "Kullanım verilerine dair gelişmiş analiz modülünü aktif eder."
+  },
+  {
+    "key": "notifications",
+    "name": "Bildirimler",
+    "description": "Gerçek zamanlı bildirim gönderim sistemini açar."
+  },
+  {
+    "key": "audit-log",
+    "name": "Log Kayıtları",
+    "description": "Kullanıcı aktiviteleri için denetim kayıtlarını aktif eder."
+  },
+  {
+    "key": "api-access",
+    "name": "API Erişimi",
+    "description": "Dış servisler için API erişimini sağlar."
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "username": "admin_user",
+    "password": "admin123",
+    "role": "admin"
+  },
+  {
+    "username": "google_user",
+    "password": "user123",
+    "role": "tenant",
+    "tenantName": "google"
+  },
+  {
+    "username": "netflix_user",
+    "password": "user123",
+    "role": "tenant",
+    "tenantName": "netflix"
+  },
+  {
+    "username": "airbnb_user",
+    "password": "user123",
+    "role": "tenant",
+    "tenantName": "airbnb"
+  }
+]
