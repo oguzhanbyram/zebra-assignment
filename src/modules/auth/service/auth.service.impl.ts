@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { JwtPayload } from '@common/interface';
+
 import { UserService } from '@modules/user/service/user.service';
 import { USER_SERVICE } from '@modules/user/user.constants';
 
@@ -20,7 +22,7 @@ export class AuthServiceImpl implements AuthService {
   async login(data: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.validateUserCredentials(data.username, data.password);
 
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       username: user.username,
       role: user.role,

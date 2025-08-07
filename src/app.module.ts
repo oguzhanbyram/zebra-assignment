@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 
 import { CacheConfigModule } from '@config/cache';
 import { TypeOrmConfigModule } from '@config/data-sources';
 import { LoggerConfigModule } from '@config/logger';
 
+import { AuthGuard, RolesGuard } from '@modules/auth';
 import { modules } from '@modules/index';
 
 @Module({
@@ -14,6 +16,10 @@ import { modules } from '@modules/index';
     TypeOrmConfigModule,
     LoggerConfigModule,
     ...modules,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}

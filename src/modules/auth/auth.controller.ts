@@ -1,6 +1,8 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { Public } from '@common/decorator';
+
 import { AUTH_SERVICE } from './auth.constants';
 import { LoginDto, LoginResponseDto } from './dto';
 import { AuthService } from './service/auth.service';
@@ -13,6 +15,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
+  @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);

@@ -8,6 +8,7 @@ export function setupSwagger(app: INestApplication) {
     .setTitle('Feature Toggle Service API')
     .setDescription('Zebra Engineering Assignment – API documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   SwaggerModule.loadPluginMetadata(metadata)

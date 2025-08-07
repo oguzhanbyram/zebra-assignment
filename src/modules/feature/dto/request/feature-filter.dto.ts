@@ -13,9 +13,18 @@ export class FeatureFilterDto implements EntityFilter<Feature> {
   @IsString()
   name?: string;
 
+  @ApiPropertyOptional({ description: 'Partial match on the key (ILIKE)' })
+  @IsOptional()
+  @IsString()
+  key?: string;
+
   apply(qb: SelectQueryBuilder<Feature>, alias = 'feature'): SelectQueryBuilder<Feature> {
     if (this.name) {
       qb.andWhere(`${alias}.name ILIKE :name`, { name: `%${this.name}%` });
+    }
+
+    if (this.key) {
+      qb.andWhere(`${alias}.key ILIKE :key`, { key: `%${this.key}%` });
     }
 
     return qb;

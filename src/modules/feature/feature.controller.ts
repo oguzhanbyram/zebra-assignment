@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Post, Put, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { PaginatedResponse, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
@@ -9,6 +9,7 @@ import { FEATURE_SERVICE } from '@modules/feature/feature.constants';
 import { FeatureService } from '@modules/feature/service';
 
 @ApiTags('feature-controller')
+@ApiBearerAuth()
 @Controller()
 export class FeatureController {
   constructor(
