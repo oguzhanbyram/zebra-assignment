@@ -17,7 +17,7 @@ export class FeatureRepositoryImpl extends BaseRepositoryImpl<Feature> implement
     super(repo);
   }
 
-  findByName(name: string): Promise<Feature | null> {
-    return this.repo.createQueryBuilder('feature').where('feature.name = :name', { name }).getOne();
+  findByKey(key: string): Promise<Feature | null> {
+    return this.repo.createQueryBuilder('feature').where('feature.key = :key', { key }).getOne();
   }
 }

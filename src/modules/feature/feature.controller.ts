@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Inject, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { PaginatedResponse, UuidParam } from '@common/decorator';
+import { PaginatedResponse, Roles, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
+import { UserRole } from '@common/enum';
 
 import { FeatureResponseDto, FeatureFilterDto, CreateFeatureDto, UpdateFeatureDto } from '@modules/feature/dto';
 import { FEATURE_SERVICE } from '@modules/feature/feature.constants';
@@ -10,6 +11,7 @@ import { FeatureService } from '@modules/feature/service';
 
 @ApiTags('feature-controller')
 @ApiBearerAuth()
+@Roles(UserRole.ADMIN)
 @Controller()
 export class FeatureController {
   constructor(

@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FeatureResponseDto {
+  @ApiProperty({ description: 'Unique key for the feature', example: 'dark_mode' })
+  key: string;
+
   @ApiProperty({ description: 'Name of the feature', example: 'Test Feature', maxLength: 50 })
   name: string;
 

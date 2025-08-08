@@ -20,9 +20,9 @@ export class TenantServiceImpl implements TenantService {
   ) {}
 
   async create(data: CreateTenantDto): Promise<TenantResponseDto> {
-    const existingTenant = await this.tenantRepository.findByName(data.name);
+    const existing = await this.tenantRepository.findByName(data.name);
 
-    if (existingTenant) {
+    if (existing) {
       throw new ConflictException('Tenant with this name already exists');
     }
 
@@ -44,9 +44,9 @@ export class TenantServiceImpl implements TenantService {
   }
 
   async update(id: string, data: UpdateTenantDto): Promise<TenantResponseDto> {
-    const existingTenant = await this.tenantRepository.findById(id);
+    const existing = await this.tenantRepository.findById(id);
 
-    if (!existingTenant) {
+    if (!existing) {
       throw new NotFoundException(`Tenant with id ${id} not found`);
     }
 
