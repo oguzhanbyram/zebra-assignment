@@ -3,6 +3,7 @@ export * from './context';
 export * from './decorator';
 export * from './dto';
 export * from './enum';
+export * from './exception';
 export * from './filter';
 export * from './interface';
 export * from './rate-limit';

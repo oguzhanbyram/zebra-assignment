@@ -1,8 +1,9 @@
-import { CallHandler, ExecutionContext, HttpException, Inject, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from '@nestjs/common';
 
 import { Observable } from 'rxjs';
 
 import { PLAN_LIMITS } from '@common/constant';
+import { TooManyRequestsException } from '@common/exception';
 import { JwtPayload } from '@common/interface';
 
 import { RATE_LIMIT_SERVICE, RateLimitService } from './rate-limit.service';
@@ -32,15 +33,9 @@ export class RateLimitInterceptor implements NestInterceptor {
     res.setHeader('X-RateLimit-Remaining', remaining);
 
     if (!allowed) {
-      throw new TooManyRequestsException('Rate limit exceeded. Please try again later.');
+      throw new TooManyRequestsException(`Rate limit exceeded for plan: ${plan}. Please try again later.`);
     }
 
     return next.handle();
-  }
-}
-
-export class TooManyRequestsException extends HttpException {
-  constructor(message: string) {
-    super(message, 429);
   }
 }

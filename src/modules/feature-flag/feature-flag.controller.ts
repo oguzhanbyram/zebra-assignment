@@ -20,6 +20,7 @@ import { FeatureFlagService } from '@modules/feature-flag/service';
 @ApiTags('feature-flag-controller')
 @ApiBearerAuth()
 @Roles(UserRole.ADMIN)
+@UseInterceptors(RateLimitInterceptor)
 @Controller()
 export class FeatureFlagController {
   constructor(
@@ -40,7 +41,6 @@ export class FeatureFlagController {
     return this.featureFlagService.upsert(body);
   }
 
-  @UseInterceptors(RateLimitInterceptor)
   @Roles(UserRole.ADMIN, UserRole.TENANT)
   @Post('feature-flags/evaluate')
   @ApiOperation({ summary: 'Evaluate a feature flag for a given user' })
