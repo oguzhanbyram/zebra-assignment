@@ -1,20 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
-import { slugger } from '@shared/utils';
+import { PlanType } from '@common/enum';
 
 export class CreateTenantDto {
-  @ApiProperty({ example: 'My Tenant', maxLength: 50, required: true })
-  @IsNotEmpty()
+  @ApiProperty({ example: 'acme-corp' })
   @IsString()
-  @MaxLength(50)
-  @Transform(({ value }) => slugger(value))
+  @MinLength(3)
+  @MaxLength(100)
   name: string;
 
-  @ApiProperty({ example: 'This is a description of my tenant.', required: false })
+  @ApiProperty({ example: 'ACME Corporation', required: false })
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiProperty({ enum: PlanType, default: PlanType.FREE, required: false })
+  @IsOptional()
+  @IsEnum(PlanType)
+  plan?: PlanType;
 }

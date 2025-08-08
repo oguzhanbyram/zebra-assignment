@@ -35,4 +35,8 @@ export class PaginationUtil {
     const direction = dir?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
     qb.orderBy(`${qb.alias}.${field}`, direction);
   }
+
+  static mapPage<T, U>(page: Page<T>, mapperFn: (entity: T) => U): Page<U> {
+    return new Page<U>(page.content.map(mapperFn), page.totalElements, page._pageable);
+  }
 }

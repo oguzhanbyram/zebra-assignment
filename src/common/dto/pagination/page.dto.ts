@@ -4,7 +4,7 @@ import { PageableMeta, Pageable, SortMeta } from '@common/dto/pagination';
 
 export class Page<T> {
   @ApiHideProperty()
-  private readonly _pageable: Pageable;
+  public readonly _pageable: Pageable;
 
   constructor(content: T[], totalElements: number, pageable: Pageable) {
     this.content = content;
