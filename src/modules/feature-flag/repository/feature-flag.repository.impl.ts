@@ -43,8 +43,10 @@ export class FeatureFlagRepositoryImpl extends BaseRepositoryImpl<FeatureFlag> i
   ): Promise<FeatureFlag | null> {
     return this.repo
       .createQueryBuilder('feature_flag')
-      .where('feature_flag.tenantId = :tenantId', { tenantId })
-      .andWhere('feature_flag.featureId = :featureId', { featureId })
+      .leftJoinAndSelect('feature_flag.tenant', 'tenant')
+      .leftJoinAndSelect('feature_flag.feature', 'feature')
+      .where('feature_flag.tenant_id = :tenantId', { tenantId })
+      .andWhere('feature_flag.feature_id = :featureId', { featureId })
       .andWhere('feature_flag.environment = :environment', { environment })
       .getOne();
   }
@@ -59,8 +61,17 @@ export class FeatureFlagRepositoryImpl extends BaseRepositoryImpl<FeatureFlag> i
       .leftJoinAndSelect('feature_flag.tenant', 'tenant')
       .leftJoinAndSelect('feature_flag.feature', 'feature')
       .where('tenant.name = :tenant', { tenant })
-      .andWhere('feature.name = :feature', { feature })
+      .andWhere('feature.key = :feature', { feature })
       .andWhere('feature_flag.environment = :environment', { environment })
       .getOne();
+  }
+
+  async findById(id: string): Promise<FeatureFlag | null> {
+    const flag = await this.repo.findOne({
+      where: { id },
+      relations: ['tenant', 'feature'],
+    });
+
+    return flag;
   }
 }

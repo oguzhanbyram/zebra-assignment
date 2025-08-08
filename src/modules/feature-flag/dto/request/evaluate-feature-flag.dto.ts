@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { Environment } from '@modules/feature-flag/enum';
 
@@ -24,8 +24,8 @@ export class EvaluateFeatureFlagDto {
   @IsNotEmpty()
   feature: string;
 
-  @ApiProperty({ description: 'User ID to evaluate feature against', example: 'user-1234' })
+  @ApiProperty({ description: 'User ID to evaluate feature against', example: 'user-1234', required: false })
   @IsString()
-  @IsNotEmpty()
-  userId: string;
+  @IsOptional()
+  userId?: string;
 }

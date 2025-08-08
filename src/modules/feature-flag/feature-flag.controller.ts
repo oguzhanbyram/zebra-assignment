@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { PaginatedResponse, UuidParam } from '@common/decorator';
+import { PaginatedResponse, Roles, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
+import { UserRole } from '@common/enum';
 
 import {
   FeatureFlagResponseDto,
@@ -14,6 +15,8 @@ import { FEATURE_FLAG_SERVICE } from '@modules/feature-flag/feature-flag.constan
 import { FeatureFlagService } from '@modules/feature-flag/service';
 
 @ApiTags('feature-flag-controller')
+@ApiBearerAuth()
+@Roles(UserRole.ADMIN)
 @Controller()
 export class FeatureFlagController {
   constructor(
@@ -36,8 +39,8 @@ export class FeatureFlagController {
 
   @Post('feature-flags/evaluate')
   @ApiOperation({ summary: 'Evaluate a feature flag for a given user' })
-  async evaluateFeature(@Body() dto: EvaluateFeatureFlagDto): Promise<{ isEnabled: boolean }> {
-    const isEnabled = await this.featureFlagService.evaluate(dto);
+  async evaluate(@Body() body: EvaluateFeatureFlagDto): Promise<{ isEnabled: boolean }> {
+    const isEnabled = await this.featureFlagService.evaluate(body);
     return { isEnabled };
   }
 

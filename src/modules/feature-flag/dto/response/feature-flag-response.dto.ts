@@ -9,8 +9,14 @@ export class FeatureFlagResponseDto {
   @ApiProperty({ format: 'uuid', description: 'Tenant ID' })
   tenantId: string;
 
+  @ApiProperty({ description: 'Tenant name' })
+  tenantName: string;
+
   @ApiProperty({ format: 'uuid', description: 'Feature ID' })
   featureId: string;
+
+  @ApiProperty({ description: 'Feature key associated with the flag' })
+  featureKey: string;
 
   @ApiProperty({
     type: () => Environment,
@@ -35,10 +41,4 @@ export class FeatureFlagResponseDto {
     description: 'Optional strategy configuration (e.g., percentage, targeting)',
   })
   value?: Record<string, any>;
-
-  @ApiProperty({ format: 'date-time' })
-  createdAt: Date;
-
-  @ApiProperty({ format: 'date-time' })
-  updatedAt: Date;
 }
