@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 
+import { RequestContextModule } from '@common/context';
+
 import { CacheConfigModule } from '@config/cache';
 import { TypeOrmConfigModule } from '@config/data-sources';
 import { LoggerConfigModule } from '@config/logger';
@@ -15,6 +17,7 @@ import { modules } from '@modules/index';
     CacheConfigModule,
     TypeOrmConfigModule,
     LoggerConfigModule,
+    RequestContextModule,
     ...modules,
   ],
   providers: [

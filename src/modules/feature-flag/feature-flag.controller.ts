@@ -10,6 +10,8 @@ import {
   FeatureFlagFilterDto,
   UpsertFeatureFlagDto,
   EvaluateFeatureFlagDto,
+  PromoteFeatureFlagsDto,
+  PromoteFeatureFlagsResponseDto,
 } from '@modules/feature-flag/dto';
 import { FEATURE_FLAG_SERVICE } from '@modules/feature-flag/feature-flag.constants';
 import { FeatureFlagService } from '@modules/feature-flag/service';
@@ -48,5 +50,11 @@ export class FeatureFlagController {
   @ApiOperation({ summary: 'Delete a feature flag by ID' })
   delete(@UuidParam('featureFlagId') id: string): Promise<boolean> {
     return this.featureFlagService.delete(id);
+  }
+
+  @Post('feature-flags/promote')
+  @ApiOperation({ summary: 'Promote feature flags from one environment to another' })
+  async promote(@Body() body: PromoteFeatureFlagsDto): Promise<PromoteFeatureFlagsResponseDto> {
+    return this.featureFlagService.promote(body);
   }
 }

@@ -21,4 +21,6 @@ export interface FeatureFlagRepository extends BaseRepository<FeatureFlag> {
     feature: string,
     environment: Environment,
   ): Promise<FeatureFlag | null>;
+
+  findByTenantAndEnvironment(tenantId: string, environment: Environment): Promise<FeatureFlag[]>;
 }

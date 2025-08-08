@@ -5,6 +5,8 @@ import {
   FeatureFlagFilterDto,
   EvaluateFeatureFlagDto,
   FeatureFlagResponseDto,
+  PromoteFeatureFlagsDto,
+  PromoteFeatureFlagsResponseDto,
 } from '@modules/feature-flag/dto';
 
 export interface FeatureFlagService {
@@ -12,4 +14,5 @@ export interface FeatureFlagService {
   findAll(pageable: Pageable, filter: FeatureFlagFilterDto): Promise<Page<FeatureFlagResponseDto>>;
   delete(id: string): Promise<boolean>;
   evaluate(data: EvaluateFeatureFlagDto): Promise<boolean>;
+  promote(data: PromoteFeatureFlagsDto): Promise<PromoteFeatureFlagsResponseDto>;
 }

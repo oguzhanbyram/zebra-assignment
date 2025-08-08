@@ -8,6 +8,12 @@ import { Feature } from '../../src/modules/feature';
 export async function seedFeatures(dataSource: DataSource): Promise<Feature[]> {
   const featureRepo = dataSource.getRepository(Feature);
 
+  const existingFeatures = await featureRepo.find();
+  if (existingFeatures.length > 0) {
+    console.log(`🧹 Cleaning existing features...`);
+    return [];
+  }
+
   try {
     const filePath = join(__dirname, 'data', 'feature-data.json');
     const file = await readFile(filePath, 'utf8');

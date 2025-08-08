@@ -74,4 +74,14 @@ export class FeatureFlagRepositoryImpl extends BaseRepositoryImpl<FeatureFlag> i
 
     return flag;
   }
+
+  async findByTenantAndEnvironment(tenantId: string, environment: Environment): Promise<FeatureFlag[]> {
+    return this.repo
+      .createQueryBuilder('flag')
+      .leftJoinAndSelect('flag.tenant', 'tenant')
+      .leftJoinAndSelect('flag.feature', 'feature')
+      .where('tenant.id = :tenantId', { tenantId })
+      .andWhere('flag.environment = :environment', { environment })
+      .getMany();
+  }
 }

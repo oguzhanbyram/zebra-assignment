@@ -11,6 +11,12 @@ import { User } from '../../src/modules/user/entity';
 export async function seedUsers(dataSource: DataSource, tenantMap: Map<string, Tenant>): Promise<User[]> {
   const userRepo = dataSource.getRepository(User);
 
+  const existingUsers = await userRepo.find();
+  if (existingUsers.length > 0) {
+    console.log(`🧹 Cleaning existing users...`);
+    return [];
+  }
+
   const filePath = join(__dirname, 'data', 'user-data.json');
   const file = await readFile(filePath, 'utf8');
   const userData: Array<{

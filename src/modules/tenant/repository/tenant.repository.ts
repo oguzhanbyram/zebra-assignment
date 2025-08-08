@@ -4,4 +4,5 @@ import { Tenant } from '@modules/tenant/entity';
 
 export interface TenantRepository extends BaseRepository<Tenant> {
   findByName(name: string): Promise<Tenant | null>;
+  findByApiKey(apiKey: string): Promise<Tenant | null>;
 }

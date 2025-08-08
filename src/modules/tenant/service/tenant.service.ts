@@ -9,4 +9,5 @@ export interface TenantService {
   update(id: string, data: UpdateTenantDto): Promise<TenantResponseDto>;
   delete(id: string): Promise<boolean>;
   findByName(name: string): Promise<TenantResponseDto | null>;
+  findByApiKey(apiKey: string): Promise<TenantResponseDto>;
 }

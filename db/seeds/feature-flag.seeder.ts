@@ -17,6 +17,12 @@ export async function seedFeatureFlags(
     return [];
   }
 
+  const existingFlags = await featureFlagRepo.find();
+  if (existingFlags.length > 0) {
+    console.log(`🧹 Cleaning existing feature flags...`);
+    return [];
+  }
+
   const environments = [Environment.DEV, Environment.STAGING, Environment.PROD];
   const strategies = [StrategyType.BOOLEAN, StrategyType.PERCENTAGE, StrategyType.TARGETING];
 

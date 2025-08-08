@@ -8,6 +8,12 @@ import { Tenant } from '../../src/modules/tenant';
 export async function seedTenants(dataSource: DataSource): Promise<Tenant[]> {
   const tenantRepo = dataSource.getRepository(Tenant);
 
+  const existingTenants = await tenantRepo.find();
+  if (existingTenants.length > 0) {
+    console.log(`🧹 Cleaning existing tenants...`);
+    return [];
+  }
+
   try {
     const filePath = join(__dirname, 'data', 'tenant-data.json');
     const file = await readFile(filePath, 'utf8');

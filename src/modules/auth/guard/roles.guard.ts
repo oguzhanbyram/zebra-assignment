@@ -24,7 +24,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
     const req = context.switchToHttp().getRequest();
-    const user = req.user as JwtPayload | undefined;
+    const user = (req as any).user as JwtPayload | undefined;
 
     if (!user) {
       throw new ForbiddenException('User not found in request');

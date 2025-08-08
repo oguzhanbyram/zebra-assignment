@@ -1,22 +1,29 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
 import { Page, Pageable } from '@common/dto';
+import { AuditAction } from '@common/enum';
 
 import { PaginationUtil } from '@shared/utils';
 
-import { FEATURE_SERVICE, FeatureService } from '@modules/feature';
-import { FEATURE_FLAG_MAPPER, FEATURE_FLAG_REPOSITORY, FeatureFlagMapper } from '@modules/feature-flag';
+import { AUDIT_LOG_SERVICE, AuditLogService } from '@modules/audit-log';
+import {
+  FEATURE_FLAG_MAPPER,
+  FEATURE_FLAG_PROMOTER_SERVICE,
+  FEATURE_FLAG_REPOSITORY,
+  FeatureFlagMapper,
+} from '@modules/feature-flag';
 import {
   UpsertFeatureFlagDto,
   FeatureFlagFilterDto,
   FeatureFlagResponseDto,
   EvaluateFeatureFlagDto,
+  PromoteFeatureFlagsDto,
+  PromoteFeatureFlagsResponseDto,
 } from '@modules/feature-flag/dto';
 import { StrategyType } from '@modules/feature-flag/enum';
 import { FeatureFlagRepository } from '@modules/feature-flag/repository';
-import { FeatureFlagService } from '@modules/feature-flag/service';
+import { FeatureFlagPromoterService, FeatureFlagService } from '@modules/feature-flag/service';
 import { FeatureFlagStrategyFactory } from '@modules/feature-flag/strategy';
-import { TENANT_SERVICE, TenantService } from '@modules/tenant';
 
 @Injectable()
 export class FeatureFlagServiceImpl implements FeatureFlagService {
@@ -25,10 +32,10 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     private readonly featureFlagRepository: FeatureFlagRepository,
     @Inject(FEATURE_FLAG_MAPPER)
     private readonly featureFlagMapper: FeatureFlagMapper,
-    @Inject(TENANT_SERVICE)
-    private readonly tenantService: TenantService,
-    @Inject(FEATURE_SERVICE)
-    private readonly featureService: FeatureService,
+    @Inject(AUDIT_LOG_SERVICE)
+    private readonly auditLogService: AuditLogService,
+    @Inject(FEATURE_FLAG_PROMOTER_SERVICE)
+    private readonly featureFlagPromoterService: FeatureFlagPromoterService,
   ) {}
 
   async findAll(pageable: Pageable, filter: FeatureFlagFilterDto): Promise<Page<FeatureFlagResponseDto>> {
@@ -51,6 +58,19 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
         value: validatedValue,
       });
 
+      await this.auditLogService.create({
+        action: AuditAction.UPDATE,
+        resource: 'feature_flag',
+        resourceId: updated.id,
+        before: existing,
+        after: {
+          ...updated,
+          tenant: existing.tenant,
+          feature: existing.feature,
+          environment: existing.environment,
+        },
+      });
+
       return this.featureFlagMapper.mapToFeatureFlagResponse({
         ...updated,
         tenant: existing.tenant,
@@ -68,11 +88,33 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
       value: validatedValue,
     });
 
+    await this.auditLogService.create({
+      action: AuditAction.CREATE,
+      resource: 'feature_flag',
+      resourceId: created.id,
+      before: null,
+      after: this.featureFlagMapper.mapToFeatureFlagResponse(created),
+    });
+
     return this.featureFlagMapper.mapToFeatureFlagResponse(created);
   }
 
-  delete(id: string): Promise<boolean> {
-    return this.featureFlagRepository.delete(id);
+  async delete(id: string): Promise<boolean> {
+    const deleted = await this.featureFlagRepository.findById(id);
+
+    const success = await this.featureFlagRepository.delete(id);
+
+    if (success) {
+      await this.auditLogService.create({
+        action: AuditAction.DELETE,
+        resource: 'feature_flag',
+        resourceId: deleted.id,
+        before: deleted,
+        after: null,
+      });
+    }
+
+    return success;
   }
 
   async evaluate(data: EvaluateFeatureFlagDto): Promise<boolean> {
@@ -106,5 +148,9 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
       default:
         throw new BadRequestException(`Unsupported strategy type: ${strategy}`);
     }
+  }
+
+  async promote(dto: PromoteFeatureFlagsDto): Promise<PromoteFeatureFlagsResponseDto> {
+    return this.featureFlagPromoterService.promote(dto);
   }
 }

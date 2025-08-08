@@ -20,4 +20,8 @@ export class TenantRepositoryImpl extends BaseRepositoryImpl<Tenant> implements 
   findByName(name: string): Promise<Tenant | null> {
     return this.repo.createQueryBuilder('tenant').where('tenant.name = :name', { name }).getOne();
   }
+
+  findByApiKey(apiKey: string): Promise<Tenant | null> {
+    return this.repo.createQueryBuilder('tenant').where('tenant.apiKey = :apiKey', { apiKey }).getOne();
+  }
 }

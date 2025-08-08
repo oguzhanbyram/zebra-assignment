@@ -11,9 +11,6 @@ async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const dataSource = app.get(DataSource);
 
-  console.log('🧹 Cleaning database...');
-  await dataSource.synchronize(true);
-
   console.log('🌱 Seeding tenants...');
   const tenants = await seedTenants(dataSource);
   const tenantMap = new Map(tenants.map(t => [t.name, t]));

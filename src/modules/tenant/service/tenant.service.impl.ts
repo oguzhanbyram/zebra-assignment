@@ -68,4 +68,14 @@ export class TenantServiceImpl implements TenantService {
 
     return this.tenantMapper.mapToTenantResponse(tenant);
   }
+
+  async findByApiKey(apiKey: string): Promise<TenantResponseDto> {
+    const tenant = await this.tenantRepository.findByApiKey(apiKey);
+
+    if (!tenant) {
+      throw new NotFoundException(`Tenant with API key ${apiKey} not found`);
+    }
+
+    return this.tenantMapper.mapToTenantResponse(tenant);
+  }
 }

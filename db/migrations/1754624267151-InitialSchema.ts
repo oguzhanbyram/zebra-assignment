@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialSchema1754601665985 implements MigrationInterface {
-    name = 'InitialSchema1754601665985'
+export class InitialSchema1754624267151 implements MigrationInterface {
+    name = 'InitialSchema1754624267151'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -71,6 +71,24 @@ export class InitialSchema1754601665985 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
+            CREATE TYPE "public"."audit_logs_action_enum" AS ENUM('create', 'update', 'delete')
+        `);
+        await queryRunner.query(`
+            CREATE TABLE "audit_logs" (
+                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "resource" character varying NOT NULL,
+                "resourceId" uuid NOT NULL,
+                "action" "public"."audit_logs_action_enum" NOT NULL,
+                "before" jsonb,
+                "after" jsonb,
+                "actorId" uuid NOT NULL,
+                "actorName" character varying NOT NULL,
+                CONSTRAINT "PK_1bb179d048bbc581caa3b013439" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
             ALTER TABLE "feature_flags"
             ADD CONSTRAINT "FK_b0564fcd9cfb5b4b9bd00429dea" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
@@ -93,6 +111,12 @@ export class InitialSchema1754601665985 implements MigrationInterface {
         `);
         await queryRunner.query(`
             ALTER TABLE "feature_flags" DROP CONSTRAINT "FK_b0564fcd9cfb5b4b9bd00429dea"
+        `);
+        await queryRunner.query(`
+            DROP TABLE "audit_logs"
+        `);
+        await queryRunner.query(`
+            DROP TYPE "public"."audit_logs_action_enum"
         `);
         await queryRunner.query(`
             DROP TABLE "users"
