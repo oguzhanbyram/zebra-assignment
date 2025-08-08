@@ -6,12 +6,15 @@ import { FEATURE_FLAG_REPOSITORY } from '@modules/feature-flag/feature-flag.cons
 import { FeatureFlagRepository } from '@modules/feature-flag/repository';
 import { FeatureFlagPromoterService } from '@modules/feature-flag/service';
 import { UpdateFlagOperation, CreateFlagOperation } from '@modules/feature-flag/strategy';
+import { TENANT_SERVICE, TenantService } from '@modules/tenant';
 
 @Injectable()
 export class FeatureFlagPromoterServiceImpl implements FeatureFlagPromoterService {
   constructor(
     @Inject(FEATURE_FLAG_REPOSITORY)
     private readonly repository: FeatureFlagRepository,
+    @Inject(TENANT_SERVICE)
+    private readonly tenantService: TenantService,
     @Inject(AUDIT_LOG_SERVICE)
     private readonly auditLogService: AuditLogService,
   ) {}
@@ -22,6 +25,8 @@ export class FeatureFlagPromoterServiceImpl implements FeatureFlagPromoterServic
     if (sourceEnv === targetEnv) {
       throw new BadRequestException('sourceEnv and targetEnv cannot be the same');
     }
+
+    await this.tenantService.findById(tenantId);
 
     const [sourceFlags, targetFlags] = await Promise.all([
       this.repository.findByTenantAndEnvironment(tenantId, sourceEnv),
@@ -40,19 +45,14 @@ export class FeatureFlagPromoterServiceImpl implements FeatureFlagPromoterServic
         ? new UpdateFlagOperation(source, target)
         : new CreateFlagOperation(source, tenantId, targetEnv);
 
-      if (!operation.hasChanges()) continue;
-
-      if (dryRun) {
-        if (operation instanceof CreateFlagOperation) {
-          created++;
-        } else {
-          updated++;
-        }
+      if (!operation.hasChanges()) {
         continue;
       }
 
-      const result = await operation.execute(this.repository);
-      await this.auditLogService.create(operation.buildAuditLog(result));
+      if (!dryRun) {
+        const result = await operation.execute(this.repository);
+        await this.auditLogService.create(operation.buildAuditLog(result));
+      }
 
       if (operation instanceof CreateFlagOperation) {
         created++;

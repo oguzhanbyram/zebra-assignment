@@ -26,6 +26,7 @@
     "migration:revert": "yarn typeorm migration:revert -d db/datasource.ts",
     "migration:show": "yarn typeorm migration:show -d db/datasource.ts",
     "migration:create": "yarn typeorm migration:create",
+    "migration:drop": "yarn typeorm schema:drop -d db/datasource.ts",
     "seed:run": "ts-node -r tsconfig-paths/register scripts/seed.ts"
   },
   "dependencies": {
