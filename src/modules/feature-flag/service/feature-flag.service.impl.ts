@@ -2,7 +2,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Cache } from 'cache-manager';
+import { Counter } from 'prom-client';
 
 import { Page, Pageable } from '@common/dto';
 import { AuditAction } from '@common/enum';
@@ -46,6 +48,8 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private readonly eventEmitter: EventEmitter2,
+    @InjectMetric('evaluate_feature_flag_total')
+    private readonly evaluateCounter: Counter<string>,
   ) {}
 
   async findAll(pageable: Pageable, filter: FeatureFlagFilterDto): Promise<Page<FeatureFlagResponseDto>> {
@@ -144,6 +148,7 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
 
   async evaluate(data: EvaluateFeatureFlagDto): Promise<boolean> {
     const { tenant, feature, environment, userId } = data;
+    this.evaluateCounter.inc({ tenant, feature, environment });
 
     const cacheKey = `feature-flag:${tenant}:${feature}:${environment}`;
     const cached = await this.cacheManager.get<boolean>(cacheKey);

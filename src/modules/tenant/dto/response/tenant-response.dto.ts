@@ -12,7 +12,7 @@ export class TenantResponseDto {
   @ApiProperty({ type: () => PlanType, enum: PlanType, example: PlanType.FREE })
   plan: PlanType;
 
-  @ApiProperty({ description: 'API key for the tenant', example: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc', required: false })
+  @ApiProperty({ description: 'API key for the tenant', required: false })
   apiKey?: string;
 
   @ApiProperty({ format: 'uuid', example: '8df6a9e2-fb8f-4c93-996a-b37d4bd332a1' })

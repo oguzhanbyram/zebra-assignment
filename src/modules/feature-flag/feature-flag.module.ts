@@ -1,6 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { makeCounterProvider } from '@willsoto/nestjs-prometheus';
+
 import { RATE_LIMIT_SERVICE, RateLimitService } from '@common/rate-limit';
 
 import { AuditLogModule } from '@modules/audit-log';
@@ -34,6 +36,11 @@ import { TenantModule } from '@modules/tenant';
     { provide: FEATURE_FLAG_REPOSITORY, useClass: FeatureFlagRepositoryImpl },
     { provide: FEATURE_FLAG_SERVICE, useClass: FeatureFlagServiceImpl },
     { provide: FEATURE_FLAG_PROMOTER_SERVICE, useClass: FeatureFlagPromoterServiceImpl },
+    makeCounterProvider({
+      name: 'evaluate_feature_flag_total',
+      help: 'Number of times feature flag evaluated',
+      labelNames: ['tenant', 'feature', 'environment'],
+    }),
   ],
 })
 export class FeatureFlagModule {}

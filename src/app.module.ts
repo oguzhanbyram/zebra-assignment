@@ -5,6 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { RequestContextModule } from '@common/context';
+import { MetricsModule } from '@common/metrics/metrics.module';
 
 import { CacheConfigModule } from '@config/cache';
 import { TypeOrmConfigModule } from '@config/data-sources';
@@ -29,6 +30,7 @@ import { modules } from '@modules/index';
     TypeOrmConfigModule,
     LoggerConfigModule,
     RequestContextModule,
+    MetricsModule,
     ...modules,
   ],
   providers: [

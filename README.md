@@ -1,174 +1,236 @@
-# 🦓 Zebra Feature Toggle Sistemi
+# 🦓 Zebra Feature Toggle Service
 
-Bu proje, farklı **tenant**'lara ve **ortamlara (environment)** göre feature flag (özellik bayrakları) yönetimi yapılmasını sağlayan bir sistemdir. Kullanıcı bazlı `feature toggle` değerlendirmesi yapar ve çeşitli stratejileri destekler:
+Zebra Feature Toggle Service, tenant bazlı, çevresel (environment) ve strateji destekli feature flag yönetim sistemidir. Sistem, yüksek ölçeklenebilirlik, güvenlik ve gözlemlenebilirlik (observability) ilkeleri gözetilerek NestJS, TypeORM, PostgreSQL ve Redis ile inşa edilmiştir.
 
-- `BOOLEAN` (Açık/Kapalı)
-- `PERCENTAGE` (Belirli yüzde aralığında kullanıcıya açık)
-- `TARGETING` (Belirli kullanıcı listesine açık)
+## 🚀 Özellikler
 
----
+- ✅ Tenant ve kullanıcı yönetimi (username + password bazlı auth)
+- ✅ JWT tabanlı kimlik doğrulama
+- ✅ Feature flag oluşturma, güncelleme, silme
+- ✅ Boolean, Percentage, Targeting stratejileri
+- ✅ Çevre bazlı flag promote özelliği
+- ✅ Evaluate endpoint (flag değerlendirme)
+- ✅ Tenant planına göre **burst rate limit (Redis tabanlı)**
+- ✅ **Caching ve invalidation** (Redis + TTL)
+- ✅ Event bazlı mimari
+- ✅ Audit log
+- ✅ Prometheus & Grafana ile metrik toplama
+- ✅ Docker Compose ile kolay kurulum
+- ✅ Swagger/OpenAPI dokümantasyonu
 
-## 🔧 Kullanılan Teknolojiler
+## 🧠 Teknolojiler
 
-- **NestJS** – Backend framework
-- **TypeORM** – ORM katmanı
-- **PostgreSQL** – Veritabanı
-- **@nestjs/jwt** – Kimlik doğrulama
-- **@nestjs/cache-manager** – Önbellekleme
-- **Swagger** – API dokümantasyonu
+| Katman           | Teknoloji             |
+|------------------|----------------------|
+| Framework        | [NestJS](https://nestjs.com) |
+| ORM              | TypeORM + PostgreSQL  |
+| Cache            | Redis                 |
+| Auth             | JWT (passport-jwt)    |
+| Rate Limiting    | Redis + Custom Interceptor |
+| Metrics          | prom-client + Prometheus |
+| Logging          | nestjs-pino           |
+| Monitoring       | Grafana               |
+| Containerization | Docker, Docker Compose |
+| Testing          | Jest (planlandı)      |
 
----
+## 🛠️ Kurulum
 
-## 📦 Kurulum
-
-### Gereksinimler
-
-- Node.js (v18+)
-- PostgreSQL
-- Yarn
-
-## 🚢 Docker ile Başlatma
-
-Uygulamayı Docker ortamında çalıştırmak için:
-
+### 📄 Ortam Değişkenlerini Hazırla
 ```bash
 cp .env.example .env
+```
 
+### 🔄 Tüm sistemi ayağa kaldır
+```bash
 docker-compose up --build
 ```
 
-> Bu işlem ile sistemde 10 tenant, çeşitli feature ve feature flag'ler ile sabit 3 kullanıcı oluşur.
-
----
-
-## 🚀 Uygulamayı Başlat
-
+### 🔧 Migration ve Seed İşlemlerini Çalıştır
 ```bash
-yarn start:dev
+docker exec -it zebra-api sh -lc 'yarn migration:run && yarn seed:run'
 ```
+Bu komut sonrası migration ve seed işlemleri otomatik olarak çalıştırılır.
 
----
+## 📖 Swagger Dokümantasyonu
 
-## 🔐 Kimlik Doğrulama (JWT)
+Swagger API dokümantasyonuna aşağıdaki URL üzerinden erişebilirsiniz:
 
-Sistemde sabit 3 kullanıcı vardır. Giriş için aşağıdaki endpoint kullanılır:
+[http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
+## 🔑 Auth
 
 ### Login
-
 ```http
-POST /api/auth/login
-```
-
-**Body:**
-
-```json
+POST /auth/login
 {
-  "username": "user_zebra_a",
-  "password": "password"
+  "username": "admin_user",
+  "password": "adminPass123"
 }
 ```
 
-**Response:**
-
+#### Response:
 ```json
 {
-  "accessToken": "..."
+  "accessToken": "JWT_TOKEN",
+  "user": {
+    "id": "...",
+    "username": "admin_user",
+    "role": "ADMIN",
+    "tenantId": "..."
+  }
 }
 ```
 
-Bu token ile diğer endpoint'lere erişilebilir:
+JWT içerisinde `plan` bilgisi yer alır.
 
-```
-Authorization: Bearer <accessToken>
-```
+## 🧩 Feature Flag API'leri
 
----
-
-## 🧪 Feature Flag Değerlendirme
-
+### ➕ Create/Update
 ```http
-POST /api/feature-flags/evaluate
+POST /feature-flags
+Authorization: Bearer <token>
 ```
-
-**Body:**
 
 ```json
 {
-  "tenant": "zebra",
-  "feature": "new-dashboard",
-  "environment": "staging",
-  "userId": "user_zebra_a"
+  "tenantId": "...",
+  "featureId": "...",
+  "environment": "dev",
+  "enabled": true,
+  "strategy": "PERCENTAGE",
+  "value": { "percentage": 50 }
 }
 ```
 
-**Response:**
-
-```json
-true
+### 🧪 Evaluate
+```http
+POST /feature-flags/evaluate
+Authorization: Bearer <token>
 ```
 
-Değerlendirme sonucu `true` ya da `false` döner. Değerlendirme sonuçları performans için önbelleğe alınır (`TTL: 60 saniye`).
+```json
+{
+  "tenant": "blutv",
+  "feature": "recommendation",
+  "environment": "prod",
+  "userId": "user-123"
+}
+```
 
----
+#### Response:
+```json
+{ "isEnabled": true }
+```
 
-## 📘 API Dokümantasyonu
+> 📌 **Evaluate endpoint’i cache’lenir (1 gün TTL)** ve `X-RateLimit-*` header’ları ile rate limit bilgisi döner.
 
-Tüm endpoint'leri Swagger arayüzü ile test edebilirsiniz:
+### ⏫ Promote (Dry Run destekli)
+```http
+POST /feature-flags/promote
+Authorization: Bearer <token>
+```
 
-📎 [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+```json
+{
+  "tenantId": "...",
+  "sourceEnv": "dev",
+  "targetEnv": "prod",
+  "dryRun": true
+}
+```
 
----
+#### Response:
+```json
+{ "created": 3, "updated": 1 }
+```
 
-## 🧱 Modüller
+## 🧮 Rate Limit
 
-| Modül           | Açıklama                                               |
-|-----------------|--------------------------------------------------------|
-| `User`          | Sisteme giriş yapan kullanıcıları yönetir              |
-| `Tenant`        | Çoklu kiracı (tenant) yapısını sağlar                  |
-| `Feature`       | Toggle'a konu olan özellikleri tanımlar                |
-| `FeatureFlag`   | Feature'ların tenant ve ortama göre durumlarını yönetir|
-| `Auth`          | JWT tabanlı kimlik doğrulama sağlar                    |
-| `Evaluate`      | Feature flag değerlendirme işlemini yapar              |
+- **Plan Bazlı** Rate Limiting:
 
----
+| Plan   | Burst | Sustained |
+|--------|-------|-----------|
+| FREE   | 20    | 100       |
+| BASIC  | 100   | 1000      |
+| PRO    | 300   | 3000      |
 
-## 📊 Rate Limiting
+- Evaluate endpoint'ine özel uygulanır.
+- Redis üzerinden kontrol edilir.
+- Yanıt header'ları:
+  - `X-RateLimit-Limit`
+  - `X-RateLimit-Remaining`
 
-JWT ile giriş yapan kullanıcılar için kullanıcı bazlı **Rate Limiting** yapılandırması yapılabilir. (İsteğe bağlı olarak Redis ile entegre edilebilir.)
+## ⚡️ Caching
 
----
+- Evaluate sonucu Redis cache’ine 1 gün süreyle (`86400000ms`) kaydedilir.
+- `feature-flag:evaluate:{tenant}:{feature}:{env}` şeklinde tutulur.
+- `CREATE / UPDATE / DELETE` durumlarında event emit edilerek otomatik invalidation sağlanır.
 
-## 💾 Önbellekleme (Caching)
+## 🧾 Audit Log
 
-Feature değerlendirme sonuçları önbelleğe alınır. `@nestjs/cache-manager` kullanılarak servis içinde TTL süreli cache mantığı uygulanmıştır.  
+- FeatureFlag işlemlerinde:
+  - `before` ve `after` verilerinin farkı hesaplanır.
+  - `CREATE`, `UPDATE`, `DELETE` aksiyonları loglanır.
+- JSON olarak audit_log tablosuna yazılır.
 
----
+## 📊 Observability
 
-## 👤 Sabit Kullanıcılar
+- Kullanılan logger: `nestjs-pino`
+- Metrikler: `prom-client` + `/api/metrics`
+- Prometheus scrape eder.
+- Grafana dashboard hazırlandı.
 
-| Kullanıcı Adı  | Şifre     |
-|----------------|-----------|
-| zebra_admin    | admin123 |
-| acme_user      | user123   |
-| globex_manager | manager123 |
+### Custom Metrics:
+```ts
+evaluate_feature_flag_total{tenant="...", feature="...", environment="..."} 1
+```
 
----
+## 📈 Prometheus & Grafana
 
-## 🛠 Geliştirme Planları
+- Prometheus endpoint: [http://localhost:9090](http://localhost:9090)
+- Grafana endpoint: [http://localhost:3001](http://localhost:3001)
+- Prometheus, `/api/metrics` endpoint'ini scrape eder.
 
-- [ ] Frontend UI entegrasyonu
-- [ ] Kullanıcıların self-service flag yönetimi
-- [ ] Redis cache & throttling desteği
-- [ ] Rollere göre yetkilendirme
-- [ ] Unit / Integration test yapısı
+## 🐳 Docker Compose Servisleri
 
----
+| Servis        | Port      |
+|---------------|-----------|
+| API           | 3000      |
+| PostgreSQL    | 5432      |
+| Redis         | 6379      |
+| PgAdmin       | 5050      |
+| Prometheus    | 9090      |
+| Grafana       | 3001      |
 
-## 🧼 Kod Yapısı
+> Not: Migration ve seed işlemleri `docker-compose up --build` komutu ile otomatik olarak çalıştırılır.
 
-- `Repository Pattern` kullanıldı
-- DTO, Service, Controller ayrımı yapıldı
-- Swagger entegrasyonu hazır
-- Modüler yapı ile kolay genişleme sağlandı
+## 📌 Örnek Kullanıcılar (Seed)
 
----
+| Username      | Password     | Role   | Tenant Name  |
+|---------------|--------------|--------|--------------|
+| admin_user    | adminPass123 | ADMIN  | zebra        |
+| google_user   | google123    | TENANT | google       |
+| netflix_user  | netflix123   | TENANT | netflix      |
+| airbnb_user   | airbnb123    | TENANT | airbnb       |
+
+## 🔚 Yol Haritası
+
+- [x] Evaluate caching
+- [x] Rate limiting
+- [x] Feature promotion
+- [x] Strategy pattern
+- [x] Redis TTL
+- [x] Observability
+- [ ] Unit test'ler
+- [ ] CLI tool for feature flag bulk import (optional)
+
+## 📊 Grafana Ayarları
+
+1. Grafana’ya giriş yapın: [http://localhost:3001](http://localhost:3001), kullanıcı adı ve şifre olarak `admin`/`admin` kullanın.  
+2. İlk girişte sizden şifre değiştirmeniz istenecektir. Yeni şifrenizi belirleyin.  
+3. Sol menüden **Configuration** → **Data Sources** bölümüne gidin ve **Add data source** butonuna tıklayın.  
+4. Açılan listeden **Prometheus**’u seçin.  
+5. URL alanına `http://prometheus:9090` yazın.  
+6. Sayfanın altındaki **Save & Test** butonuna tıklayarak bağlantıyı doğrulayın.  
+7. Ardından, **Dashboard** eklemek için **Import dashboard** seçeneğini kullanarak hazır dashboardları yükleyin ve Prometheus metriklerini görselleştirin.
+8. Dashboardlarınızı özelleştirebilir ve metriklerinizi takip edebilirsiniz.
