@@ -163,6 +163,7 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     const result = evaluator.evaluate(userId, flag.value ?? {});
 
     await this.cacheManager.set(cacheKey, result, EVALUATE_CACHE_TTL_MS);
+
     return result;
   }
 
