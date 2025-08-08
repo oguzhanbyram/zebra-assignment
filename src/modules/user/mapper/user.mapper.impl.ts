@@ -8,7 +8,7 @@ import { UserMapper } from '@modules/user/mapper';
 export class UserMapperImpl implements UserMapper {
   mapToUserResponse(user: User): UserResponseDto {
     const { id, username, role, tenantId } = user;
-    return { id, username, role, tenantId };
+    return { id, username, role, tenantId, plan: user.tenant ? user.tenant.plan : null };
   }
 
   mapToUserResponseList(users: User[]): UserResponseDto[] {

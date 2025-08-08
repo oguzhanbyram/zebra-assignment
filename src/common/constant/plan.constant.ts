@@ -14,3 +14,5 @@ export const PLAN_LIMITS: Record<PlanType, { burst: number; sustained: number }>
     sustained: 3000,
   },
 };
+
+export const RATE_LIMIT_WINDOW_SECONDS = 60;

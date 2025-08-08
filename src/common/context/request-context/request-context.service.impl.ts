@@ -1,6 +1,6 @@
 import { Injectable, Scope } from '@nestjs/common';
 
-import { UserRole } from '@common/enum';
+import { PlanType, UserRole } from '@common/enum';
 import { JwtPayload } from '@common/interface';
 
 import { RequestContextService } from './request-context.service';
@@ -33,19 +33,27 @@ export class RequestContextServiceImpl implements RequestContextService {
     this.user.sub = userId;
   }
 
-  getRole(): string {
-    return this.user?.role;
-  }
-
-  setRole(role: UserRole): void {
-    this.user.role = role;
-  }
-
   getTenantId(): string {
     return this.user?.tenantId;
   }
 
   setTenantId(tenantId: string): void {
     this.user.tenantId = tenantId;
+  }
+
+  getPlan(): PlanType {
+    return this.user?.plan;
+  }
+
+  setPlan(plan: PlanType): void {
+    this.user.plan = plan;
+  }
+
+  getRole(): string {
+    return this.user?.role;
+  }
+
+  setRole(role: UserRole): void {
+    this.user.role = role;
   }
 }

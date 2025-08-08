@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Post, Query, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { PaginatedResponse, Roles, UuidParam } from '@common/decorator';
 import { Page, Pageable } from '@common/dto';
 import { UserRole } from '@common/enum';
+import { RateLimitInterceptor } from '@common/rate-limit';
 
 import {
   FeatureFlagResponseDto,
@@ -39,6 +40,8 @@ export class FeatureFlagController {
     return this.featureFlagService.upsert(body);
   }
 
+  @UseInterceptors(RateLimitInterceptor)
+  @Roles(UserRole.ADMIN, UserRole.TENANT)
   @Post('feature-flags/evaluate')
   @ApiOperation({ summary: 'Evaluate a feature flag for a given user' })
   async evaluate(@Body() body: EvaluateFeatureFlagDto): Promise<{ isEnabled: boolean }> {

@@ -5,3 +5,4 @@ export * from './dto';
 export * from './enum';
 export * from './filter';
 export * from './interface';
+export * from './rate-limit';

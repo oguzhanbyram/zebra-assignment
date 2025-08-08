@@ -1,6 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { RATE_LIMIT_SERVICE, RateLimitService } from '@common/rate-limit';
+
 import { AuditLogModule } from '@modules/audit-log';
 import { FeatureModule } from '@modules/feature/feature.module';
 import { FeatureFlag } from '@modules/feature-flag/entity';
@@ -25,6 +27,7 @@ import { TenantModule } from '@modules/tenant';
   ],
   controllers: [FeatureFlagController],
   providers: [
+    { provide: RATE_LIMIT_SERVICE, useClass: RateLimitService },
     { provide: FEATURE_FLAG_MAPPER, useClass: FeatureFlagMapperImpl },
     { provide: FEATURE_FLAG_REPOSITORY, useClass: FeatureFlagRepositoryImpl },
     { provide: FEATURE_FLAG_SERVICE, useClass: FeatureFlagServiceImpl },

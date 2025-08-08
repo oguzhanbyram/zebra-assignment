@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { UserRole } from '@common/enum';
+import { PlanType, UserRole } from '@common/enum';
 
 export class UserResponseDto {
   @ApiProperty()
@@ -14,4 +14,7 @@ export class UserResponseDto {
 
   @ApiProperty({ required: false })
   tenantId?: string;
+
+  @ApiProperty({ type: () => PlanType, enum: PlanType, required: false })
+  plan?: PlanType;
 }

@@ -27,6 +27,7 @@ export class RequestContextMiddleware implements NestMiddleware {
         this.context.setUserId(payload.sub);
         this.context.setUsername(payload.username);
         this.context.setTenantId(payload.tenantId);
+        this.context.setPlan(payload.plan);
         this.context.setRole(payload.role);
       } catch (error) {
         console.error('Invalid token:', error);

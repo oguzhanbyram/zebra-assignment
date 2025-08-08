@@ -1,3 +1,4 @@
+import { PlanType } from '@common/enum';
 import { JwtPayload } from '@common/interface';
 
 export interface RequestContextService {
@@ -12,6 +13,9 @@ export interface RequestContextService {
 
   getTenantId(): string;
   setTenantId(tenantId: string): void;
+
+  getPlan(): PlanType;
+  setPlan(plan: PlanType): void;
 
   getRole(): string;
   setRole(role: string): void;
