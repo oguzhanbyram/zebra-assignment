@@ -1,4 +1,8 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { Cache } from 'cache-manager';
 
 import { Page, Pageable } from '@common/dto';
 import { AuditAction } from '@common/enum';
@@ -20,10 +24,13 @@ import {
   PromoteFeatureFlagsDto,
   PromoteFeatureFlagsResponseDto,
 } from '@modules/feature-flag/dto';
-import { StrategyType } from '@modules/feature-flag/enum';
+import { FeatureFlagEventType, StrategyType } from '@modules/feature-flag/enum';
+import { FeatureFlagEvent } from '@modules/feature-flag/event';
 import { FeatureFlagRepository } from '@modules/feature-flag/repository';
 import { FeatureFlagPromoterService, FeatureFlagService } from '@modules/feature-flag/service';
 import { FeatureFlagStrategyFactory } from '@modules/feature-flag/strategy';
+
+const EVALUATE_CACHE_TTL_MS = 86400000;
 
 @Injectable()
 export class FeatureFlagServiceImpl implements FeatureFlagService {
@@ -36,6 +43,9 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
     private readonly auditLogService: AuditLogService,
     @Inject(FEATURE_FLAG_PROMOTER_SERVICE)
     private readonly featureFlagPromoterService: FeatureFlagPromoterService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(pageable: Pageable, filter: FeatureFlagFilterDto): Promise<Page<FeatureFlagResponseDto>> {
@@ -71,6 +81,11 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
         },
       });
 
+      await this.eventEmitter.emitAsync(
+        FeatureFlagEventType.UPDATED,
+        new FeatureFlagEvent(existing.tenant.name, existing.feature.key, existing.environment),
+      );
+
       return this.featureFlagMapper.mapToFeatureFlagResponse({
         ...updated,
         tenant: existing.tenant,
@@ -96,6 +111,11 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
       after: this.featureFlagMapper.mapToFeatureFlagResponse(created),
     });
 
+    await this.eventEmitter.emitAsync(
+      FeatureFlagEventType.CREATED,
+      new FeatureFlagEvent(created.tenant.name, created.feature.key, created.environment),
+    );
+
     return this.featureFlagMapper.mapToFeatureFlagResponse(created);
   }
 
@@ -112,6 +132,11 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
         before: deleted,
         after: null,
       });
+
+      await this.eventEmitter.emitAsync(
+        FeatureFlagEventType.DELETED,
+        new FeatureFlagEvent(deleted.tenant.name, deleted.feature.key, deleted.environment),
+      );
     }
 
     return success;
@@ -120,12 +145,25 @@ export class FeatureFlagServiceImpl implements FeatureFlagService {
   async evaluate(data: EvaluateFeatureFlagDto): Promise<boolean> {
     const { tenant, feature, environment, userId } = data;
 
+    const cacheKey = `feature-flag:${tenant}:${feature}:${environment}`;
+    const cached = await this.cacheManager.get<boolean>(cacheKey);
+
+    if (cached !== undefined && cached !== null) {
+      return cached;
+    }
+
     const flag = await this.featureFlagRepository.findByTenantNameAndFeatureNameAndEnv(tenant, feature, environment);
 
-    if (!flag || !flag.enabled) return false;
+    if (!flag || !flag.enabled) {
+      await this.cacheManager.set(cacheKey, false, EVALUATE_CACHE_TTL_MS);
+      return false;
+    }
 
     const evaluator = FeatureFlagStrategyFactory.getEvaluator(flag.strategy);
-    return evaluator.evaluate(userId, flag.value ?? {});
+    const result = evaluator.evaluate(userId, flag.value ?? {});
+
+    await this.cacheManager.set(cacheKey, result, EVALUATE_CACHE_TTL_MS);
+    return result;
   }
 
   private validateStrategyAndValue(strategy: StrategyType, value?: Record<string, any>): Record<string, any> | null {

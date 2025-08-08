@@ -13,6 +13,7 @@ import {
   FEATURE_FLAG_PROMOTER_SERVICE,
 } from '@modules/feature-flag/feature-flag.constants';
 import { FeatureFlagController } from '@modules/feature-flag/feature-flag.controller';
+import { FeatureFlagListener } from '@modules/feature-flag/listener';
 import { FeatureFlagMapperImpl } from '@modules/feature-flag/mapper';
 import { FeatureFlagRepositoryImpl } from '@modules/feature-flag/repository';
 import { FeatureFlagPromoterServiceImpl, FeatureFlagServiceImpl } from '@modules/feature-flag/service';
@@ -27,6 +28,7 @@ import { TenantModule } from '@modules/tenant';
   ],
   controllers: [FeatureFlagController],
   providers: [
+    FeatureFlagListener,
     { provide: RATE_LIMIT_SERVICE, useClass: RateLimitService },
     { provide: FEATURE_FLAG_MAPPER, useClass: FeatureFlagMapperImpl },
     { provide: FEATURE_FLAG_REPOSITORY, useClass: FeatureFlagRepositoryImpl },

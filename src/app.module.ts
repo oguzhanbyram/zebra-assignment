@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { RequestContextModule } from '@common/context';
@@ -23,6 +24,7 @@ import { modules } from '@modules/index';
         },
       ],
     }),
+    EventEmitterModule.forRoot(),
     CacheConfigModule,
     TypeOrmConfigModule,
     LoggerConfigModule,
